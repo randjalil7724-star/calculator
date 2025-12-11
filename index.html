@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Scientific Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --accent-dark: #2980b9;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #1a252f;
+            --light: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 20px;
+            color: var(--light);
+        }
+
+        .calculator-container {
+            display: flex;
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+            flex-wrap: wrap;
+        }
+
+        .calculator {
+            flex: 1;
+            min-width: 400px;
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border-radius: 25px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--success), var(--warning));
+        }
+
+        .calculator-title {
+            text-align: center;
+            color: white;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .calculator-title i {
+            color: var(--accent);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 8px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .display-container {
+            background: rgba(10, 15, 20, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .expression-display {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            min-height: 1.8rem;
+            margin-bottom: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-all;
+        }
+
+        .result-display {
+            color: white;
+            font-size: 3rem;
+            font-weight: 300;
+            text-align: right;
+            min-height: 3.5rem;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 20px 5px;
+            transition: all 0.15s ease;
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 6px 12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+            border-radius: 12px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 16px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 3px 6px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .number-btn {
+            background: linear-gradient(145deg, #3a506b, #2c3e50);
+        }
+
+        .operation-btn {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+        }
+
+        .scientific-btn {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+            font-size: 1.2rem;
+        }
+
+        .function-btn {
+            background: linear-gradient(145deg, #1abc9c, #16a085);
+            font-size: 1.2rem;
+        }
+
+        .clear-btn {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+        }
+
+        .equals-btn {
+            background: linear-gradient(135deg, var(--success), #27ae60);
+            grid-column: span 2;
+        }
+
+        .memory-btn {
+            background: linear-gradient(145deg, #f39c12, #d68910);
+        }
+
+        .history-sidebar {
+            flex: 0.5;
+            min-width: 300px;
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .history-control-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 8px;
+            color: var(--light);
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .history-control-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 500px;
+            padding-right: 10px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .history-expression {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .history-result {
+            color: var(--success);
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+
+        .history-timestamp {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        .empty-history {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        .memory-display {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .memory-display span {
+            color: var(--warning);
+            font-weight: 500;
+        }
+
+        @media (max-width: 1024px) {
+            .calculator-container {
+                flex-direction: column;
+            }
+            
+            .calculator, .history-sidebar {
+                min-width: 100%;
+            }
+            
+            .buttons-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .buttons-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .result-display {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calculator, .history-sidebar {
+                padding: 20px;
+            }
+            
+            .buttons-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+            }
+            
+            button {
+                padding: 18px 5px;
+                font-size: 1.2rem;
+            }
+            
+            .result-display {
+                font-size: 2rem;
+            }
+        }
+
+        .current-mode {
+            text-align: center;
+            color: var(--accent);
+            margin: 15px 0;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .special-functions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .degree-rad-toggle {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 12px;
+            justify-content: center;
+        }
+
+        .angle-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .angle-btn.active {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <!-- Main Calculator -->
+        <div class="calculator">
+            <div class="calculator-title">
+                <i class="fas fa-calculator"></i>
+                Advanced Scientific Calculator
+            </div>
+
+            <!-- Mode Selector -->
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="basic">Basic</button>
+                <button class="mode-btn" data-mode="scientific">Scientific</button>
+                <button class="mode-btn" data-mode="programmer">Programmer</button>
+            </div>
+
+            <!-- Angle Mode Toggle -->
+            <div class="degree-rad-toggle">
+                <button class="angle-btn active" data-angle="deg">DEG</button>
+                <button class="angle-btn" data-angle="rad">RAD</button>
+                <button class="angle-btn" data-angle="grad">GRAD</button>
+            </div>
+
+            <!-- Display -->
+            <div class="display-container">
+                <div class="expression-display" id="expression"></div>
+                <div class="result-display" id="result">0</div>
+            </div>
+
+            <!-- Current Mode Display -->
+            <div class="current-mode" id="currentMode">Basic Mode | DEG</div>
+
+            <!-- Calculator Buttons -->
+            <div class="buttons-grid" id="basicButtons">
+                <!-- Row 1 -->
+                <button class="memory-btn" data-action="mc">MC</button>
+                <button class="memory-btn" data-action="mr">MR</button>
+                <button class="memory-btn" data-action="m+">M+</button>
+                <button class="memory-btn" data-action="m-">M-</button>
+                <button class="clear-btn" data-action="clear">AC</button>
+                
+                <!-- Row 2 -->
+                <button class="scientific-btn" data-func="sin">sin</button>
+                <button class="scientific-btn" data-func="cos">cos</button>
+                <button class="scientific-btn" data-func="tan">tan</button>
+                <button class="scientific-btn" data-operation="^" title="Power">x^y</button>
+                <button class="function-btn" data-action="delete">⌫</button>
+                
+                <!-- Row 3 -->
+                <button class="number-btn" data-number="7">7</button>
+                <button class="number-btn" data-number="8">8</button>
+                <button class="number-btn" data-number="9">9</button>
+                <button class="operation-btn" data-operation="÷">÷</button>
+                <button class="scientific-btn" data-func="log">log</button>
+                
+                <!-- Row 4 -->
+                <button class="number-btn" data-number="4">4</button>
+                <button class="number-btn" data-number="5">5</button>
+                <button class="number-btn" data-number="6">6</button>
+                <button class="operation-btn" data-operation="×">×</button>
+                <button class="scientific-btn" data-func="ln">ln</button>
+                
+                <!-- Row 5 -->
+                <button class="number-btn" data-number="1">1</button>
+                <button class="number-btn" data-number="2">2</button>
+                <button class="number-btn" data-number="3">3</button>
+                <button class="operation-btn" data-operation="-">-</button>
+                <button class="scientific-btn" data-func="sqrt">√</button>
+                
+                <!-- Row 6 -->
+                <button class="number-btn" data-number="0">0</button>
+                <button class="number-btn" data-number=".">.</button>
+                <button class="scientific-btn" data-func="pi">π</button>
+                <button class="operation-btn" data-operation="+">+</button>
+                <button class="scientific-btn" data-func="fact">x!</button>
+                
+                <!-- Row 7 -->
+                <button class="scientific-btn" data-func="asin">asin</button>
+                <button class="scientific-btn" data-func="acos">acos</button>
+                <button class="scientific-btn" data-func="atan">atan</button>
+                <button class="scientific-btn" data-operation="mod">mod</button>
+                <button class="equals-btn" data-action="equals">=</button>
+            </div>
+
+            <!-- Special Functions Row -->
+            <div class="special-functions">
+                <button class="function-btn" data-func="exp">e^x</button>
+                <button class="function-btn" data-func="tenx">10^x</button>
+                <button class="function-btn" data-func="abs">|x|</button>
+                <button class="function-btn" data-func="floor">floor</button>
+                <button class="function-btn" data-func="ceil">ceil</button>
+                <button class="function-btn" data-func="round">round</button>
+            </div>
+
+            <!-- Memory Display -->
+            <div class="memory-display">
+                Memory: <span id="memoryValue">0</span>
+            </div>
+        </div>
+
+        <!-- History Sidebar -->
+        <div class="history-sidebar">
+            <div class="history-header">
+                <div class="history-title">
+                    <i class="fas fa-history"></i>
+                    Calculation History
+                </div>
+                <div class="history-controls">
+                    <button class="history-control-btn" id="clearHistory">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button class="history-control-btn" id="exportHistory">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            
+            <div class="history-list" id="historyList">
+                <!-- History items will be added here -->
+                <div class="empty-history">No calculations yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ScientificCalculator {
+            constructor() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.isNewCalculation = true;
+                this.memory = 0;
+                this.angleMode = 'deg'; // deg, rad, grad
+                this.mode = 'basic'; // basic, scientific, programmer
+                this.history = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
+                this.expression = '';
+                
+                this.initializeElements();
+                this.updateDisplay();
+                this.loadHistory();
+                this.setupEventListeners();
+            }
+
+            initializeElements() {
+                this.resultElement = document.getElementById('result');
+                this.expressionElement = document.getElementById('expression');
+                this.historyList = document.getElementById('historyList');
+                this.memoryValueElement = document.getElementById('memoryValue');
+                this.currentModeElement = document.getElementById('currentMode');
+            }
+
+            setupEventListeners() {
+                // Number buttons
+                document.querySelectorAll('[data-number]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.appendNumber(button.getAttribute('data-number'));
+                        this.updateDisplay();
+                    });
+                });
+
+                // Operation buttons
+                document.querySelectorAll('[data-operation]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.chooseOperation(button.getAttribute('data-operation'));
+                        this.updateDisplay();
+                    });
+                });
+
+                // Function buttons
+                document.querySelectorAll('[data-func]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.applyFunction(button.getAttribute('data-func'));
+                        this.updateDisplay();
+                    });
+                });
+
+                // Action buttons
+                document.querySelector('[data-action="equals"]').addEventListener('click', () => {
+                    this.compute();
+                    this.updateDisplay();
+                });
+
+                document.querySelector('[data-action="clear"]').addEventListener('click', () => {
+                    this.clear();
+                    this.updateDisplay();
+                });
+
+                document.querySelector('[data-action="delete"]').addEventListener('click', () => {
+                    this.delete();
+                    this.updateDisplay();
+                });
+
+                // Memory buttons
+                document.querySelectorAll('[data-action^="m"]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.handleMemory(button.getAttribute('data-action'));
+                        this.updateDisplay();
+                    });
+                });
+
+                // Mode buttons
+                document.querySelectorAll('.mode-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.setMode(button.getAttribute('data-mode'));
+                        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                    });
+                });
+
+                // Angle mode buttons
+                document.querySelectorAll('.angle-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        this.setAngleMode(button.getAttribute('data-angle'));
+                        document.querySelectorAll('.angle-btn').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                    });
+                });
+
+                // History controls
+                document.getElementById('clearHistory').addEventListener('click', () => this.clearHistory());
+                document.getElementById('exportHistory').addEventListener('click', () => this.exportHistory());
+
+                // Keyboard support
+                document.addEventListener('keydown', (event) => this.handleKeyboard(event));
+            }
+
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.isNewCalculation = true;
+                this.expression = '';
+            }
+
+            delete() {
+                if (this.currentOperand === '0' || this.currentOperand.length === 1) {
+                    this.currentOperand = '0';
+                } else {
+                    this.currentOperand = this.currentOperand.slice(0, -1);
+                }
+            }
+
+            appendNumber(number) {
+                if (this.isNewCalculation || this.currentOperand === '0') {
+                    this.currentOperand = number;
+                    this.isNewCalculation = false;
+                } else {
+                    if (number === '.' && this.currentOperand.includes('.')) return;
+                    this.currentOperand += number;
+                }
+            }
+
+            chooseOperation(operation) {
+                if (this.currentOperand === '') return;
+                
+                if (this.previousOperand !== '') {
+                    this.compute();
+                }
+                
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.currentOperand = '';
+                this.expression = `${this.previousOperand} ${this.operation}`;
+            }
+
+            applyFunction(func) {
+                const value = parseFloat(this.currentOperand);
+                if (isNaN(value)) return;
+
+                let result;
+                const angleInRadians = this.convertToRadians(value);
+
+                switch(func) {
+                    case 'sin':
+                        result = Math.sin(angleInRadians);
+                        this.expression = `sin(${value})`;
+                        break;
+                    case 'cos':
+                        result = Math.cos(angleInRadians);
+                        this.expression = `cos(${value})`;
+                        break;
+                    case 'tan':
+                        result = Math.tan(angleInRadians);
+                        this.expression = `tan(${value})`;
+                        break;
+                    case 'asin':
+                        result = Math.asin(value);
+                        result = this.convertFromRadians(result);
+                        this.expression = `asin(${value})`;
+                        break;
+                    case 'acos':
+                        result = Math.acos(value);
+                        result = this.convertFromRadians(result);
+                        this.expression = `acos(${value})`;
+                        break;
+                    case 'atan':
+                        result = Math.atan(value);
+                        result = this.convertFromRadians(result);
+                        this.expression = `atan(${value})`;
+                        break;
+                    case 'log':
+                        result = Math.log10(value);
+                        this.expression = `log(${value})`;
+                        break;
+                    case 'ln':
+                        result = Math.log(value);
+                        this.expression = `ln(${value})`;
+                        break;
+                    case 'sqrt':
+                        result = Math.sqrt(value);
+                        this.expression = `√(${value})`;
+                        break;
+                    case 'pi':
+                        result = Math.PI;
+                        this.currentOperand = result.toString();
+                        this.expression = 'π';
+                        return;
+                    case 'fact':
+                        result = this.factorial(value);
+                        this.expression = `fact(${value})`;
+                        break;
+                    case 'exp':
+                        result = Math.exp(value);
+                        this.expression = `exp(${value})`;
+                        break;
+                    case 'tenx':
+                        result = Math.pow(10, value);
+                        this.expression = `10^${value}`;
+                        break;
+                    case 'abs':
+                        result = Math.abs(value);
+                        this.expression = `|${value}|`;
+                        break;
+                    case 'floor':
+                        result = Math.floor(value);
+                        this.expression = `floor(${value})`;
+                        break;
+                    case 'ceil':
+                        result = Math.ceil(value);
+                        this.expression = `ceil(${value})`;
+                        break;
+                    case 'round':
+                        result = Math.round(value);
+                        this.expression = `round(${value})`;
+                        break;
+                    default:
+                        return;
+                }
+
+                this.addToHistory(this.expression, result);
+                this.currentOperand = Math.round(result * 1e12) / 1e12;
+                this.isNewCalculation = true;
+            }
+
+            compute() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+                
+                switch (this.operation) {
+                    case '+':
+                        computation = prev + current;
+                        break;
+                    case '-':
+                        computation = prev - current;
+                        break;
+                    case '×':
+                        computation = prev * current;
+                        break;
+                    case '÷':
+                        if (current === 0) {
+                            this.showError("Cannot divide by zero!");
+                            return;
+                        }
+                        computation = prev / current;
+                        break;
+                    case '^':
+                        computation = Math.pow(prev, current);
+                        break;
+                    case 'mod':
+                        computation = prev % current;
+                        break;
+                    default:
+                        return;
+                }
+                
+                this.addToHistory(`${prev} ${this.operation} ${current}`, computation);
+                this.currentOperand = Math.round(computation * 1e12) / 1e12;
+                this.operation = undefined;
+                this.previousOperand = '';
+                this.isNewCalculation = true;
+                this.expression = '';
+            }
+
+            addToHistory(expression, result) {
+                const historyItem = {
+                    expression: expression,
+                    result: result,
+                    timestamp: new Date().toLocaleString(),
+                    mode: this.mode,
+                    angleMode: this.angleMode
+                };
+                
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) this.history.pop();
+                
+                localStorage.setItem('calculatorHistory', JSON.stringify(this.history));
+                this.updateHistoryDisplay();
+            }
+
+            updateHistoryDisplay() {
+                this.historyList.innerHTML = '';
+                
+                if (this.history.length === 0) {
+                    this.historyList.innerHTML = '<div class="empty-history">No calculations yet</div>';
+                    return;
+                }
+                
+                this.history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-expression">${item.expression}</div>
+                        <div class="history-result">= ${item.result}</div>
+                        <div class="history-timestamp">${item.timestamp} | ${item.mode} | ${item.angleMode}</div>
+                    `;
+                    
+                    historyItem.addEventListener('click', () => {
+                        this.currentOperand = item.result.toString();
+                        this.updateDisplay();
+                    });
+                    
+                    this.historyList.appendChild(historyItem);
+                });
+            }
+
+            loadHistory() {
+                this.updateHistoryDisplay();
+            }
+
+            clearHistory() {
+                if (confirm('Clear all calculation history?')) {
+                    this.history = [];
+                    localStorage.removeItem('calculatorHistory');
+                    this.updateHistoryDisplay();
+                }
+            }
+
+            exportHistory() {
+                const dataStr = JSON.stringify(this.history, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `calculator_history_${new Date().toISOString().slice(0,10)}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }
+
+            handleMemory(action) {
+                const value = parseFloat(this.currentOperand);
+                
+                switch(action) {
+                    case 'mc':
+                        this.memory = 0;
+                        break;
+                    case 'mr':
+                        this.currentOperand = this.memory.toString();
+                        this.isNewCalculation = true;
+                        break;
+                    case 'm+':
+                        this.memory += isNaN(value) ? 0 : value;
+                        break;
+                    case 'm-':
+                        this.memory -= isNaN(value) ? 0 : value;
+                        break;
+                }
+                
+                this.memoryValueElement.textContent = Math.round(this.memory * 1e12) / 1e12;
+            }
+
+            setMode(mode) {
+                this.mode = mode;
+                this.updateModeDisplay();
+            }
+
+            setAngleMode(angleMode) {
+                this.angleMode = angleMode;
+                this.updateModeDisplay();
+            }
+
+            updateModeDisplay() {
+                this.currentModeElement.textContent = 
+                    `${this.mode.charAt(0).toUpperCase() + this.mode.slice(1)} Mode | ${this.angleMode.toUpperCase()}`;
+            }
+
+            convertToRadians(degrees) {
+                switch(this.angleMode) {
+                    case 'deg':
+                        return degrees * Math.PI / 180;
+                    case 'grad':
+                        return degrees * Math.PI / 200;
+                    case 'rad':
+                    default:
+                        return degrees;
+                }
+            }
+
+            convertFromRadians(radians) {
+                switch(this.angleMode) {
+                    case 'deg':
+                        return radians * 180 / Math.PI;
+                    case 'grad':
+                        return radians * 200 / Math.PI;
+                    case 'rad':
+                    default:
+                        return radians;
+                }
+            }
+
+            factorial(n) {
+                if (n < 0) return NaN;
+                if (n === 0 || n === 1) return 1;
+                
+                let result = 1;
+                for (let i = 2; i <= n; i++) {
+                    result *= i;
+                }
+                return result;
+            }
+
+            showError(message) {
+                alert(message);
+                this.clear();
+            }
+
+            updateDisplay() {
+                this.resultElement.textContent = this.currentOperand;
+                this.expressionElement.textContent = this.expression || this.previousOperand + (this.operation ? ' ' + this.operation : '');
+                this.updateModeDisplay();
+            }
+
+            handleKeyboard(event) {
+                event.preventDefault();
+                
+                if (event.key >= '0' && event.key <= '9') {
+                    this.appendNumber(event.key);
+                } else if (event.key === '.') {
+                    this.appendNumber('.');
+                } else if (event.key === '+') {
+                    this.chooseOperation('+');
+                } else if (event.key === '-') {
+                    this.chooseOperation('-');
+                } else if (event.key === '*') {
+                    this.chooseOperation('×');
+                } else if (event.key === '/') {
+                    this.chooseOperation('÷');
+                } else if (event.key === 'Enter' || event.key === '=') {
+                    this.compute();
+                } else if (event.key === 'Escape' || event.key === 'Delete') {
+                    this.clear();
+                } else if (event.key === 'Backspace') {
+                    this.delete();
+                } else if (event.key === '^') {
+                    this.chooseOperation('^');
+                } else if (event.key === 'm' && event.ctrlKey) {
+                    this.handleMemory('m+');
+                }
+                
+                this.updateDisplay();
+            }
+        }
+
+        // Initialize the calculator when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const calculator = new ScientificCalculator();
+            
+            // Add haptic feedback for mobile
+            if ('vibrate' in navigator) {
+                document.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        navigator.vibrate(10);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
